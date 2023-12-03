@@ -1,0 +1,209 @@
+#include <BIT_MATH.h>
+#include <STD_TYPES.h>
+#include <RCC_Config.h>
+#include <RCC_Interface.h>
+#include <RCC_Private.h>
+
+
+
+/*****************************************************************
+ * INITIALIZE SYSTEM CLOCK SOURCE
+ *****************************************************************/
+void MCAL_RCC_void_InitSysClock(){
+	/*CLOCK: HIGH SPEED INTERNAL(HSI)**************************************/
+	if (RCC_CLOCK_TYPE == RCC_HSI){
+			CLEAR_BIT(RCC->RCC_CR  ,HSEON);
+			CLEAR_BIT(RCC->RCC_CR ,PULLON);
+			SET_BIT(RCC->RCC_CR ,HSION);		//ENABLE HSI
+			SET_BIT(RCC->RCC_CR ,HSITRIM4);		//DEFAULT OPERATION NO TRIMMING
+			//SET CLK TO HSI
+			CLEAR_BIT(RCC->RCC_CFGR ,SW0);
+			CLEAR_BIT(RCC->RCC_CFGR ,SW1);
+	}
+/*CLOCK: HIGH SPEED EXTERNAL(HSE) CRYSTAL******************************/
+	else if(RCC_CLOCK_TYPE == RCC_HSE_CRYSTAL){
+		SET_BIT(RCC->RCC_CR   ,HSEON);		//ENABLE HSE
+		CLEAR_BIT(RCC->RCC_CR ,HSEBYP);		//BYPASS XTAL1 DISABLE (CRYSTAL)
+		//SET CLK TO HSE CRYSTAL
+		SET_BIT(RCC->RCC_CFGR   ,SW0);
+		CLEAR_BIT(RCC->RCC_CFGR ,SW1);
+	}
+/*CLOCK: HIGH SPEED EXTERNAL(HSE) RC***********************************/
+	else if(RCC_CLOCK_TYPE == RCC_HSE_RC){
+		SET_BIT(RCC->RCC_CR   ,HSEON);		//ENABLE HSE
+		SET_BIT(RCC->RCC_CR ,HSEBYP);		//BYPASS XTAL1 ENABLE (RC)
+		//SET CLK TO HSE RC
+		SET_BIT(RCC->RCC_CFGR   ,SW0);
+		CLEAR_BIT(RCC->RCC_CFGR ,SW1);
+	}
+/*CLOCK: PHASE LOCKED LOOP(PLL)**************************************/
+	else if (RCC_CLOCK_TYPE == RCC_PLL){
+		//SYSCLK * 2
+		#if RCC_PLL_MUL_VALUE == 2
+  			CLEAR_BIT(RCC->RCC_CFGR ,PLLMUL0);
+			CLEAR_BIT(RCC->RCC_CFGR ,PLLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PLLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PLLMUL3);
+		//SYSCLK * 3
+		#elif RCC_PLL_MUL_VALUE == 3   
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMU0L);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL3);
+		//SYSCLK * 4
+		#elif RCC_PLL_MUL_VALUE == 4  
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL0);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL3);
+		//SYSCLK * 5
+		#elif RCC_PLL_MUL_VALUE == 5  
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL0);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL3);
+		//SYSCLK * 6
+		#elif RCC_PLL_MUL_VALUE == 6
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL0);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL1);
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL3);
+		//SYSCLK * 7
+		#elif RCC_PLL_MUL_VALUE == 7   
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL0);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL1);
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL3);
+		//SYSCLK * 8
+		#elif RCC_PLL_MUL_VALUE == 8   
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL0);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL1);
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL3);
+		//SYSCLK * 9
+		#elif RCC_PLL_MUL_VALUE == 9   
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL0);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL1);
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL2);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL3);
+		//SYSCLK * 10
+		#elif RCC_PLL_MUL_VALUE == 10 
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL0);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL2);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL3);
+		//SYSCLK * 11
+		#elif RCC_PLL_MUL_VALUE == 11  
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL0);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL2);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL3);
+		//SYSCLK * 12
+		#elif RCC_PLL_MUL_VALUE == 12  
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL0);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL2);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL3);
+		//SYSCLK * 13
+		#elif RCC_PLL_MUL_VALUE == 13  
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL0);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL1);
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL2);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL3);
+		//SYSCLK * 14
+		#elif RCC_PLL_MUL_VALUE == 14
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL0);
+			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL1);
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL2);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL3);
+		//SYSCLK * 15
+		#elif RCC_PLL_MUL_VALUE == 15  
+  			SET_BIT(RCC->RCC_CFGR  	,PULLMUL0);
+			CLEAR_BIT(RCC->RCC_CFG 	,PULLMUL1);
+  			SET_BIT(RCC->RCC_CFGR  	,PULLMUL2);
+			SET_BIT(RCC->RCC_CFGR  	,PULLMUL3);
+		//SYSCLK * 16
+		#elif RCC_PLL_MUL_VALUE == 16  
+  			CLEAR_BIT(RCC->RCC_CFGR ,PULLMUL0);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL1);
+  			SET_BIT(RCC->RCC_CFGR   ,PULLMUL2);
+			SET_BIT(RCC->RCC_CFGR   ,PULLMUL3);
+		#else 
+			#error("Wrong Clock Type")	
+		#endif
+		SET_BIT(RCC->RCC_CR ,PULLON);	//ENABLE PLL
+		//SET PLL INPUT CLK SOURCE (HSI/2)
+		#if RCC_PLL_INPUT_SOURCE == RCC_PLL_IN_HSI_DIV_2
+			CLEAR_BIT(RCC->RCC_CFGR ,PLLSRC);
+		//SET PLL INPUT CLK SOURCE (HSE/2)
+		#elif RCC_PLL_INPUT_SOURCE == RCC_PLL_IN_HSE_DIV_2 
+			SET_BIT(RCC->RCC_CFGR 	,PLLSRC);
+			CLEAR_BIT(RCC->RCC_CFGR ,PLLXTPRE);
+		//SET PLL INPUT CLK SOURCE (HSE)
+		#elif RCC_PLL_INPUT_SOURCE == RCC_PLL_IN_HSE
+			SET_BIT(RCC->RCC_CFGR 	,PLLSCR);
+			SET_BIT(RCC->RCC_CFGR 	,PLLXTPRE);
+ 		#endif
+		//SET CLK TO PLL
+		CLEAR_BIT(RCC->RCC_CFGR ,SW0);
+		SET_BIT(RCC->RCC_CFGR 	,SW1);
+	}
+}
+
+
+/*****************************************************************
+ * ENBLE PERIPHERAL CONNCTION TO A BUS OPTIONS:
+ * ***************************************************************
+ * 1)AHB
+ * 2)APB1
+ * 3)APB2
+ *****************************************************************/
+void MCAL_RCC_void_EnableClock(u8_t Bus_ID , u8_t Peripheral_ID){
+	if(Peripheral_ID <= 31){
+		switch(Bus_ID){
+		//PERIPHERAL CONECTED TO ADVANNCED HIGH PREFORMANCE BUS(AHB)
+			case RCC_AHP:
+				SET_BIT(RCC->RCC_AHBENR ,Peripheral_ID);
+				break;
+		//PERIPHERAL CONECTED TO ADVANNCED PERIPHERAL BUS1(AHB1)
+			case RCC_APB1:
+				SET_BIT(RCC->RCC_APB1ENR ,Peripheral_ID);
+				break;
+		//PERIPHERAL CONECTED TO ADVANNCED PERIPHERAL BUS2(APB2)
+			case RCC_APB2:
+				SET_BIT(RCC->RCC_APB2ENR ,Peripheral_ID);
+				break;
+		}
+	}
+	else{
+		//Return Error
+	}
+}
+
+
+/*****************************************************************
+ * DISABLE PERIPHERAL CONNCTION TO A BUS OPTIONS:
+ * ***************************************************************
+ * 1)AHB
+ * 2)APB1
+ * 3)APB2
+ *****************************************************************/
+void MCAL_RCC_void_DisableClock(u8_t Bus_ID , u8_t Peripheral_ID){
+	if(Peripheral_ID <= 31){
+		switch(Bus_ID){
+			case RCC_AHP:
+				CLEAR_BIT(RCC->RCC_AHBENR ,Peripheral_ID);
+				break;
+			case RCC_APB1:
+				CLEAR_BIT(RCC->RCC_APB1ENR ,Peripheral_ID);
+				break;
+			case RCC_APB2:
+				CLEAR_BIT(RCC->RCC_APB2ENR ,Peripheral_ID);
+				break;
+		}
+	}
+	else{
+		//Return Error
+	}
+
+}
